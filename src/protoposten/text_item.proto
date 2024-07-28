@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package outpost;
+
+option go_package = "./postisprpc";
+
+service OutpostService {
+    rpc InsertTextItem (TextItemInsertReq) returns (TextItemInsertRes);
+    rpc Retrieve (RetrieveReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnId (RetrieveOnIdReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnTime (RetrieveOnTimeReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnCategory (RetrieveOnCategoryReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnIdAndCategory (RetrieveOnIdAndCategoryReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnTimeAndId (RetrieveOnTimeAndIdReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnTimeAndCategory (RetrieveOnTimeAndCategoryReq) returns (TextItemRetrieveRes);
+}
+
+message TextItemInsertReq {
+    string text = 1;
+    string id = 2;
+    string timestamp = 3;
+    string category = 4;
+}
+
+message TextItemInsertRes {
+    bool successful = 1;
+    optional string error = 2;
+}
+
+message RetrieveReq {
+
+}
+
+message RetrieveOnIdReq {
+    string id = 1;
+}
+
+message RetrieveOnTimeReq {
+    string start = 1;
+    string end = 2;
+}
+
+message RetrieveOnCategoryReq {
+    string category = 1;
+}
+
+message RetrieveOnIdAndCategoryReq {
+    string id = 1;
+    string category = 2;
+}
+
+message RetrieveOnTimeAndIdReq {
+    string id = 1;
+    string start = 2;
+    string end = 3;
+}
+
+message RetrieveOnTimeAndCategoryReq {
+    string category = 1;
+    string start = 2;
+    string end = 3;
+}
+
+message TextItemResponseData {
+    string text = 1;
+    string id = 2;
+    string timestamp = 3;
+    string category = 4;
+}
+
+message TextItemRetrieveRes {
+    bool successful = 1;
+    optional string error = 2;
+    repeated TextItemResponseData text_items = 3;
+}

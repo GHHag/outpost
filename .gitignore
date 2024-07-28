@@ -20,3 +20,9 @@
 # Go workspace file
 go.work
 go.work.sum
+
+mock_data
+env*
+__pycache__
+*/postisp/postisprpc
+*/protoposten/*.py
