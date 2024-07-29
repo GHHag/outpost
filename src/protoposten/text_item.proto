@@ -5,7 +5,7 @@ package outpost;
 option go_package = "./postisprpc";
 
 service OutpostService {
-    rpc InsertTextItem (TextItemInsertReq) returns (TextItemInsertRes);
+    rpc InsertTextItem (TextItem) returns (TextItemInsertRes);
     rpc Retrieve (RetrieveReq) returns (TextItemRetrieveRes);
     rpc RetrieveOnId (RetrieveOnIdReq) returns (TextItemRetrieveRes);
     rpc RetrieveOnTime (RetrieveOnTimeReq) returns (TextItemRetrieveRes);
@@ -15,7 +15,7 @@ service OutpostService {
     rpc RetrieveOnTimeAndCategory (RetrieveOnTimeAndCategoryReq) returns (TextItemRetrieveRes);
 }
 
-message TextItemInsertReq {
+message TextItem {
     string text = 1;
     string id = 2;
     string timestamp = 3;
@@ -61,15 +61,8 @@ message RetrieveOnTimeAndCategoryReq {
     string end = 3;
 }
 
-message TextItemResponseData {
-    string text = 1;
-    string id = 2;
-    string timestamp = 3;
-    string category = 4;
-}
-
 message TextItemRetrieveRes {
     bool successful = 1;
     optional string error = 2;
-    repeated TextItemResponseData text_items = 3;
+    repeated TextItem text_items = 3;
 }

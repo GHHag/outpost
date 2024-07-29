@@ -1,11 +1,11 @@
-if [ ! -d ../postisp/postisprpc ]; then
-    mkdir ../postisp/postisprpc
+if [ ! -d ../outpost/outpostrpc ]; then
+    mkdir ../outpost/outpostrpc
 fi
 
 pb_prefix="text_item"
 
-protoc --go_out=../postisp/postisprpc --go_opt=paths=source_relative \
-    --go-grpc_out=../postisp/postisprpc --go-grpc_opt=paths=source_relative \
+protoc --go_out=../outpost/outpostrpc --go_opt=paths=source_relative \
+    --go-grpc_out=../outpost/outpostrpc --go-grpc_opt=paths=source_relative \
     ${pb_prefix}.proto
 
 python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ${pb_prefix}.proto
