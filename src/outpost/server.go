@@ -20,7 +20,7 @@ type server struct {
 func (s *server) InsertTextItem(ctx context.Context, req *pb.TextItem) (*pb.TextItemInsertRes, error) {
 	textItem := TextItem{
 		Text:      req.Text,
-		Id:        req.Id,
+		RefTag:    req.RefTag,
 		Timestamp: req.Timestamp,
 		Category:  req.Category,
 	}
@@ -51,8 +51,8 @@ func (s *server) Retrieve(ctx context.Context, req *pb.RetrieveReq) (*pb.TextIte
 	return res, nil
 }
 
-func (s *server) RetrieveOnId(ctx context.Context, req *pb.RetrieveOnIdReq) (*pb.TextItemRetrieveRes, error) {
-	textItems, err := s.persister.RetrieveOnId(req.Id)
+func (s *server) RetrieveOnRefTag(ctx context.Context, req *pb.RetrieveOnRefTagReq) (*pb.TextItemRetrieveRes, error) {
+	textItems, err := s.persister.RetrieveOnRefTag(req.RefTag)
 
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (s *server) RetrieveOnCategory(ctx context.Context, req *pb.RetrieveOnCateg
 	return res, nil
 }
 
-func (s *server) RetrieveOnIdAndCategory(ctx context.Context, req *pb.RetrieveOnIdAndCategoryReq) (*pb.TextItemRetrieveRes, error) {
+func (s *server) RetrieveOnRefTagAndCategory(ctx context.Context, req *pb.RetrieveOnRefTagAndCategoryReq) (*pb.TextItemRetrieveRes, error) {
 	res := &pb.TextItemRetrieveRes{
 		Successful: true,
 		TextItems:  nil,
@@ -93,7 +93,7 @@ func (s *server) RetrieveOnIdAndCategory(ctx context.Context, req *pb.RetrieveOn
 	return res, nil
 }
 
-func (s *server) RetrieveOnTimeAndId(ctx context.Context, req *pb.RetrieveOnTimeAndIdReq) (*pb.TextItemRetrieveRes, error) {
+func (s *server) RetrieveOnTimeAndRefTag(ctx context.Context, req *pb.RetrieveOnTimeAndRefTagReq) (*pb.TextItemRetrieveRes, error) {
 	res := &pb.TextItemRetrieveRes{
 		Successful: true,
 		TextItems:  nil,
@@ -119,7 +119,7 @@ func Run(persister TextItemPersister) {
 		panic(err)
 	}
 
-	// TODO: Try to implement running with a mock SSL cert
+	// TODO: Implement with mock SSL cert
 	// creds, err := credentials.NewServerTLSFromFile("", "")
 	// if err != nil {
 	// 	panic(err)
@@ -128,9 +128,7 @@ func Run(persister TextItemPersister) {
 	// s := grpc.NewServer(grpc.Creds(creds))
 	s := grpc.NewServer()
 
-	pb.RegisterOutpostServiceServer(s, &server{
-		persister: persister,
-	})
+	pb.RegisterOutpostServiceServer(s, &server{persister: persister})
 
 	if err := s.Serve(listener); err != nil {
 		panic(err)

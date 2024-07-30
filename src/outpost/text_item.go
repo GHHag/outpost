@@ -5,9 +5,8 @@ import (
 )
 
 type TextItem struct {
-	// TODO: Do this struct need to define json fields?
 	Text      string
-	Id        string
+	RefTag    string
 	Timestamp string
 	Category  string
 }
@@ -15,7 +14,12 @@ type TextItem struct {
 type TextItemPersister interface {
 	Insert(TextItem) error
 	Retrieve() ([]*pb.TextItem, error)
-	RetrieveOnId(string) ([]*pb.TextItem, error)
+	RetrieveOnRefTag(string) ([]*pb.TextItem, error)
 	// update(string) error
 	// delete(string) error
+}
+
+type TextItemCollector interface {
+	Collect() ([]*pb.TextItem, error)
+	Persist() error
 }

@@ -7,32 +7,31 @@ option go_package = "./postisprpc";
 service OutpostService {
     rpc InsertTextItem (TextItem) returns (TextItemInsertRes);
     rpc Retrieve (RetrieveReq) returns (TextItemRetrieveRes);
-    rpc RetrieveOnId (RetrieveOnIdReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnRefTag (RetrieveOnRefTagReq) returns (TextItemRetrieveRes);
     rpc RetrieveOnTime (RetrieveOnTimeReq) returns (TextItemRetrieveRes);
     rpc RetrieveOnCategory (RetrieveOnCategoryReq) returns (TextItemRetrieveRes);
-    rpc RetrieveOnIdAndCategory (RetrieveOnIdAndCategoryReq) returns (TextItemRetrieveRes);
-    rpc RetrieveOnTimeAndId (RetrieveOnTimeAndIdReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnRefTagAndCategory (RetrieveOnRefTagAndCategoryReq) returns (TextItemRetrieveRes);
+    rpc RetrieveOnTimeAndRefTag (RetrieveOnTimeAndRefTagReq) returns (TextItemRetrieveRes);
     rpc RetrieveOnTimeAndCategory (RetrieveOnTimeAndCategoryReq) returns (TextItemRetrieveRes);
 }
 
 message TextItem {
     string text = 1;
-    string id = 2;
+    string ref_tag = 2;
     string timestamp = 3;
     string category = 4;
 }
 
 message TextItemInsertRes {
     bool successful = 1;
-    optional string error = 2;
 }
 
 message RetrieveReq {
 
 }
 
-message RetrieveOnIdReq {
-    string id = 1;
+message RetrieveOnRefTagReq {
+    string ref_tag = 1;
 }
 
 message RetrieveOnTimeReq {
@@ -44,13 +43,13 @@ message RetrieveOnCategoryReq {
     string category = 1;
 }
 
-message RetrieveOnIdAndCategoryReq {
-    string id = 1;
+message RetrieveOnRefTagAndCategoryReq {
+    string ref_tag = 1;
     string category = 2;
 }
 
-message RetrieveOnTimeAndIdReq {
-    string id = 1;
+message RetrieveOnTimeAndRefTagReq {
+    string ref_tag = 1;
     string start = 2;
     string end = 3;
 }
@@ -63,6 +62,5 @@ message RetrieveOnTimeAndCategoryReq {
 
 message TextItemRetrieveRes {
     bool successful = 1;
-    optional string error = 2;
-    repeated TextItem text_items = 3;
+    repeated TextItem text_items = 2;
 }
