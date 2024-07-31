@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"hash/fnv"
 	"outpost"
 	pb "outpost/outpostrpc"
 
@@ -30,10 +31,14 @@ func NewSQLitePersister(path string) (SQLitePersister, error) {
 		return SQLitePersister{}, err
 	}
 
+	if err = persister.createIndices(); err != nil {
+		return SQLitePersister{}, err
+	}
+
 	return persister, nil
 }
 
-func (persister *SQLitePersister) createReferenceTagsTable() error {
+func (persister SQLitePersister) createReferenceTagsTable() error {
 	referenceTableSQL := `
 		CREATE TABLE IF NOT EXISTS reference_tags(
 			reference_tag VARCHAR(64) UNIQUE NOT NULL PRIMARY KEY
@@ -48,9 +53,7 @@ func (persister *SQLitePersister) createReferenceTagsTable() error {
 	return nil
 }
 
-func (persister *SQLitePersister) createTextItemsTable() error {
-	// TODO: Add checksum unique column and calculate it based on some fields
-	// that should be unique to avoid having duplicate items inserted
+func (persister SQLitePersister) createTextItemsTable() error {
 	textItemsTableSQL := `
 		CREATE TABLE IF NOT EXISTS text_items(
 			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -58,11 +61,26 @@ func (persister *SQLitePersister) createTextItemsTable() error {
 			text TEXT NOT NULL,
 			timestamp VARCHAR(32) NOT NULL,
 			category VARCHAR(64) NOT NULL,
+			unihash INTEGER UNIQUE NOT NULL,
 			FOREIGN KEY(reference_tag_fk) REFERENCES references_tags(reference_tag)
 		);
 	`
 
 	_, err := persister.db.Exec(textItemsTableSQL)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (persister SQLitePersister) createIndices() error {
+	stmt := `
+		CREATE INDEX IF NOT EXISTS reference_tag_idx ON text_items(reference_tag_fk);
+		CREATE INDEX IF NOT EXISTS timestamp_idx ON text_items(timestamp);
+		CREATE INDEX IF NOT EXISTS category_idx ON text_items(timestamp);
+	`
+	_, err := persister.db.Exec(stmt)
 	if err != nil {
 		return err
 	}
@@ -109,8 +127,8 @@ func (persister SQLitePersister) Insert(textItem outpost.TextItem) error {
 	}
 
 	insertQuery := `
-		INSERT INTO text_items(reference_tag_fk, text, timestamp, category)
-		VALUES (?, ?, ?, ?)
+		INSERT INTO text_items(reference_tag_fk, text, timestamp, category, unihash)
+		VALUES (?, ?, ?, ?, ?);
 	`
 
 	tx, err := persister.db.Begin()
@@ -124,11 +142,20 @@ func (persister SQLitePersister) Insert(textItem outpost.TextItem) error {
 	}
 	defer stmt.Close()
 
+	unihash := fnv.New64a()
+	unihash.Write([]byte(
+		textItem.RefTag +
+			// textItem.Text +
+			textItem.Timestamp +
+			textItem.Category))
+	hashSum := unihash.Sum64()
+
 	_, err = stmt.Exec(
 		textItem.RefTag,
 		textItem.Text,
 		textItem.Timestamp,
 		textItem.Category,
+		hashSum,
 	)
 	if err != nil {
 		return err
